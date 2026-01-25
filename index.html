@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMark - Movie & TV Show Summary Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 CineMark</h1>
+            <p>Search for any movie or TV show and generate a beautiful markdown summary</p>
+        </div>
+
+        <div class="search-section">
+            <div class="api-notice" id="apiNotice" style="display: none;">
+                Using mock data for testing. Add your OMDb API key below to fetch real movie data.
+            </div>
+
+            <!-- Media Type Toggle -->
+            <div class="media-type-toggle">
+                <button class="active" data-type="movie">🎬 Movie</button>
+                <button data-type="tv">📺 TV Show</button>
+            </div>
+
+            <div class="form-group">
+                <label for="apiKey">OMDb API Key (for movies)</label>
+                <input type="text" id="apiKey" placeholder="Get free API key at omdbapi.com">
+            </div>
+
+            <div class="form-group">
+                <label for="tmdbApiKey">TMDb API Key (required for TV shows, optional for movies)</label>
+                <input type="text" id="tmdbApiKey" placeholder="Get free API key at themoviedb.org/settings/api">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="movieTitle">Movie Title</label>
+                    <input type="text" id="movieTitle" placeholder="Enter movie title..." value="Interstellar">
+                </div>
+
+                <div class="form-group">
+                    <label for="movieYear">Year (optional)</label>
+                    <input type="text" id="movieYear" placeholder="e.g., 2014" value="2014">
+                </div>
+            </div>
+
+            <button class="search-btn" onclick="searchMedia()">🔍 Search Movie</button>
+        </div>
+
+        <div class="options-section">
+            <div class="options-title">Include in Output:</div>
+            <div class="options-grid">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTitle" checked>
+                    <label for="includeTitle">Title</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeYear" checked>
+                    <label for="includeYear">Year</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeRuntime" checked>
+                    <label for="includeRuntime">Runtime</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeGenres" checked>
+                    <label for="includeGenres">Genres</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTagline" checked>
+                    <label for="includeTagline">Tagline/Quote</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeRatings" checked>
+                    <label for="includeRatings">Ratings</label>
+                </div>
+                <div class="checkbox-group" id="includeLetterboxdGroup">
+                    <input type="checkbox" id="includeLetterboxd" checked>
+                    <label for="includeLetterboxd">Letterboxd Rating</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTMDb" checked>
+                    <label for="includeTMDb">TMDb Rating</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includePlot" checked>
+                    <label for="includePlot">Plot Summary</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeCast" checked>
+                    <label for="includeCast">Cast</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeCrew" checked>
+                    <label for="includeCrew">Key Crew</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeLink" checked>
+                    <label for="includeLink">Letterboxd Link</label>
+                </div>
+                <!-- TV-specific option (hidden by default) -->
+                <div class="checkbox-group" id="includeTVInfoGroup" style="display: none;">
+                    <input type="checkbox" id="includeTVInfo" checked>
+                    <label for="includeTVInfo">TV Show Info</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="poster-section" id="posterSection" style="display: none;">
+            <div class="poster-header">
+                <h3>Poster</h3>
+                <a id="downloadPosterBtn" class="download-btn" download>💾 Download Image</a>
+            </div>
+            <div class="poster-container">
+                <img id="posterImage" src="" alt="Poster" />
+            </div>
+        </div>
+
+        <div class="manual-ratings-section" id="manualRatingsSection" style="display: none;">
+            <div class="manual-ratings-header">
+                <h3>⚠️ Missing Ratings - Enter Manually</h3>
+                <p style="font-size: 13px; color: #6e6e73; margin-top: 8px;">Some ratings couldn't be fetched. Enter them manually below and click Update.</p>
+            </div>
+            <div class="manual-ratings-grid" id="manualRatingsGrid">
+                <!-- Dynamic fields will be added here -->
+            </div>
+            <button class="update-ratings-btn" onclick="updateWithManualRatings()">✓ Update Output with Manual Ratings</button>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="view-toggle">
+                    <button class="active" onclick="switchView('markdown')">Raw Markdown</button>
+                    <button onclick="switchView('html')">HTML Preview</button>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+            </div>
+
+            <div class="output-container" id="outputContainer">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                        <polyline points="17 2 12 7 7 2"></polyline>
+                    </svg>
+                    <p>Search for a movie or TV show to generate output</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript files loaded in dependency order -->
+    <script src="js/config.js"></script>
+    <script src="js/urls.js"></script>
+    <script src="js/scraper.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/output.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
