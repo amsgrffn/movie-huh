@@ -243,4 +243,165 @@ function switchMediaType(type) {
         // Letterboxd is primarily for movies
         letterboxdCheckbox.style.display = type === 'movie' ? 'flex' : 'none';
     }
+
+    // Hide episode picker when switching to movie mode
+    const episodePickerSection = document.getElementById('episodePickerSection');
+    if (episodePickerSection && type === 'movie') {
+        episodePickerSection.style.display = 'none';
+    }
+}
+
+// Global state for episode picker
+let currentTVId = null;
+let currentSeasons = [];
+let currentEpisodeData = null;
+
+/**
+ * Show the episode picker after a TV show is searched
+ */
+function showEpisodePicker(tvId, seasons) {
+    currentTVId = tvId;
+    currentSeasons = seasons || [];
+
+    const episodePickerSection = document.getElementById('episodePickerSection');
+    const seasonSelect = document.getElementById('seasonSelect');
+    const episodeSelect = document.getElementById('episodeSelect');
+    const fetchBtn = document.getElementById('fetchEpisodeBtn');
+
+    // Reset state
+    episodeSelect.innerHTML = '<option value="">-- Select Episode --</option>';
+    episodeSelect.disabled = true;
+    fetchBtn.disabled = true;
+
+    // Populate seasons dropdown (filter out specials/season 0 if desired)
+    seasonSelect.innerHTML = '<option value="">-- Select Season --</option>';
+    currentSeasons.forEach(season => {
+        if (season.season_number > 0) { // Skip specials
+            const option = document.createElement('option');
+            option.value = season.season_number;
+            option.textContent = `Season ${season.season_number} (${season.episode_count} episodes)`;
+            seasonSelect.appendChild(option);
+        }
+    });
+
+    episodePickerSection.style.display = 'block';
+}
+
+/**
+ * Handle season selection change
+ */
+async function onSeasonChange() {
+    const seasonSelect = document.getElementById('seasonSelect');
+    const episodeSelect = document.getElementById('episodeSelect');
+    const fetchBtn = document.getElementById('fetchEpisodeBtn');
+    const episodePreview = document.getElementById('episodePreview');
+
+    const seasonNumber = seasonSelect.value;
+
+    // Reset episode dropdown and preview
+    episodeSelect.innerHTML = '<option value="">-- Loading Episodes --</option>';
+    episodeSelect.disabled = true;
+    fetchBtn.disabled = true;
+    episodePreview.style.display = 'none';
+
+    if (!seasonNumber || !currentTVId) {
+        episodeSelect.innerHTML = '<option value="">-- Select Episode --</option>';
+        return;
+    }
+
+    // Fetch episodes for this season
+    const seasonData = await fetchSeasonEpisodes(currentTVId, seasonNumber);
+
+    if (seasonData && seasonData.episodes) {
+        episodeSelect.innerHTML = '<option value="">-- Select Episode --</option>';
+        seasonData.episodes.forEach(ep => {
+            const option = document.createElement('option');
+            option.value = ep.episode_number;
+            option.textContent = `${ep.episode_number}. ${ep.name}`;
+            episodeSelect.appendChild(option);
+        });
+        episodeSelect.disabled = false;
+    } else {
+        episodeSelect.innerHTML = '<option value="">-- No episodes found --</option>';
+    }
+}
+
+/**
+ * Handle episode selection change
+ */
+function onEpisodeChange() {
+    const episodeSelect = document.getElementById('episodeSelect');
+    const fetchBtn = document.getElementById('fetchEpisodeBtn');
+
+    fetchBtn.disabled = !episodeSelect.value;
+}
+
+/**
+ * Fetch and display selected episode details
+ */
+async function fetchSelectedEpisode() {
+    const seasonSelect = document.getElementById('seasonSelect');
+    const episodeSelect = document.getElementById('episodeSelect');
+    const episodePreview = document.getElementById('episodePreview');
+
+    const seasonNumber = seasonSelect.value;
+    const episodeNumber = episodeSelect.value;
+
+    if (!seasonNumber || !episodeNumber || !currentTVId) {
+        return;
+    }
+
+    episodePreview.innerHTML = '<div class="loading">Loading episode details...</div>';
+    episodePreview.style.display = 'block';
+
+    const result = await fetchEpisodeDetails(currentTVId, seasonNumber, episodeNumber);
+
+    if (result && result.episode) {
+        const ep = result.episode;
+        const credits = result.credits;
+
+        // Extract crew
+        const directors = credits?.crew?.filter(c => c.job === 'Director').map(c => c.name) || [];
+        const writers = credits?.crew?.filter(c => c.job === 'Writer' || c.department === 'Writing').map(c => c.name) || [];
+        const guestStars = credits?.guest_stars?.slice(0, 5).map(g => g.name) || [];
+
+        // Build episode data object
+        currentEpisodeData = {
+            mediaType: 'episode',
+            ShowTitle: currentMediaData?.Title || 'Unknown Show',
+            Title: ep.name || 'Unknown Episode',
+            SeasonNumber: seasonNumber,
+            EpisodeNumber: episodeNumber,
+            AirDate: ep.air_date || 'N/A',
+            Runtime: ep.runtime ? `${ep.runtime} min` : 'N/A',
+            Plot: ep.overview || 'No synopsis available.',
+            TMDbRating: ep.vote_average ? ep.vote_average.toFixed(1) : 'N/A',
+            Director: directors.length > 0 ? directors.join(', ') : 'N/A',
+            Writer: writers.length > 0 ? [...new Set(writers)].slice(0, 3).join(', ') : 'N/A',
+            GuestStars: guestStars,
+            StillImage: ep.still_path ? `https://image.tmdb.org/t/p/w500${ep.still_path}` : null
+        };
+
+        // Update the main output to show episode
+        currentMediaData = currentEpisodeData;
+        generateOutput();
+
+        // Show preview
+        episodePreview.innerHTML = `
+            <div class="episode-info-card">
+                <strong>Now showing:</strong> S${seasonNumber}E${episodeNumber} - ${escapeHtml(ep.name)}
+                <br><small>The output above has been updated with episode details. Copy it as Markdown or HTML.</small>
+            </div>
+        `;
+    } else {
+        episodePreview.innerHTML = '<div class="error">Failed to load episode details. Please try again.</div>';
+    }
+}
+
+/**
+ * Reset to show TV show details instead of episode
+ */
+function showTVShowDetails() {
+    // This would reset to the TV show data
+    // For now, user can just search again
 }

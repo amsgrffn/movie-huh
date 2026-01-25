@@ -562,3 +562,103 @@ body {
 .tv-info-item strong {
     color: #007aff;
 }
+
+/* Episode Picker Section */
+.episode-picker-section {
+    padding: 30px;
+    background: linear-gradient(180deg, #f0f4ff 0%, #e8f0ff 100%);
+    border-bottom: 1px solid #007aff;
+}
+
+.episode-picker-header {
+    margin-bottom: 20px;
+}
+
+.episode-picker-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 4px 0;
+}
+
+.episode-picker-header p {
+    font-size: 13px;
+    color: #6e6e73;
+    margin: 0;
+}
+
+.episode-picker-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+@media (max-width: 700px) {
+    .episode-picker-controls {
+        grid-template-columns: 1fr;
+    }
+}
+
+.episode-fetch-btn {
+    padding: 10px 20px;
+    background: #5856d6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.episode-fetch-btn:hover:not(:disabled) {
+    background: #4240a8;
+}
+
+.episode-fetch-btn:disabled {
+    background: #c7c7cc;
+    cursor: not-allowed;
+}
+
+.episode-preview {
+    margin-top: 20px;
+}
+
+.episode-info-card {
+    background: #ffffff;
+    border: 1px solid #007aff;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    color: #1d1d1f;
+}
+
+.episode-info-card small {
+    color: #6e6e73;
+}
+
+/* Episode details styling */
+.episode-details h3 {
+    font-size: 18px;
+    color: #5856d6;
+    margin-top: 8px;
+}
+
+.episode-details h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #1d1d1f;
+}
+
+.episode-still {
+    max-width: 100%;
+    width: 400px;
+    height: auto;
+    border-radius: 8px;
+    margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

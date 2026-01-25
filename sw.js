@@ -1,5 +1,5 @@
 // CineMark Service Worker
-const CACHE_NAME = 'cinemark-v1';
+const CACHE_NAME = 'cinemark-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
