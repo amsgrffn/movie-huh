@@ -8,6 +8,10 @@ let currentView = 'markdown';
 let currentMediaData = null;
 let currentMediaType = 'movie'; // 'movie' or 'tv'
 
+// Default API keys
+const DEFAULT_OMDB_KEY = 'c7c06a7c';
+const DEFAULT_TMDB_KEY = '6ba568970f260dcd909b33c000890463';
+
 // CORS proxy for web scraping
 const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
