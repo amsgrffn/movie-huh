@@ -238,16 +238,6 @@ function generateTVMarkdown(data, options) {
 }
 
 /**
- * Main markdown generation function
- */
-function generateMarkdown(data, options) {
-    if (data.mediaType === 'tv') {
-        return generateTVMarkdown(data, options);
-    }
-    return generateMovieMarkdown(data, options);
-}
-
-/**
  * Generate HTML output for movies
  */
 function generateMovieHTML(data, options) {
@@ -457,8 +447,139 @@ function generateTVHTML(data, options) {
  * Main HTML generation function
  */
 function generateHTML(data, options) {
+    if (data.mediaType === 'episode') {
+        return generateEpisodeHTML(data, options);
+    }
     if (data.mediaType === 'tv') {
         return generateTVHTML(data, options);
     }
     return generateMovieHTML(data, options);
+}
+
+/**
+ * Generate markdown output for TV episode
+ */
+function generateEpisodeMarkdown(data, options) {
+    let md = '';
+
+    // Title with show name
+    if (options.includeTitle) {
+        md += `# ${data.ShowTitle}\n\n`;
+        md += `## Season ${data.SeasonNumber}, Episode ${data.EpisodeNumber}: ${data.Title}\n\n`;
+    }
+
+    // Air date and runtime
+    md += '## Episode Details\n\n';
+    if (data.AirDate && data.AirDate !== 'N/A') {
+        md += `- **Air Date:** ${data.AirDate}\n`;
+    }
+    if (options.includeRuntime && data.Runtime) {
+        md += `- **Runtime:** ${data.Runtime}\n`;
+    }
+    if (data.TMDbRating && data.TMDbRating !== 'N/A') {
+        md += `- **TMDb Rating:** ${data.TMDbRating}/10\n`;
+    }
+    md += '\n';
+
+    // Plot
+    if (options.includePlot && data.Plot) {
+        md += '## Synopsis\n\n';
+        md += `${data.Plot}\n\n`;
+    }
+
+    // Director and Writer
+    if (options.includeCrew) {
+        const hasCrew = (data.Director && data.Director !== 'N/A') || (data.Writer && data.Writer !== 'N/A');
+        if (hasCrew) {
+            md += '## Crew\n\n';
+            if (data.Director && data.Director !== 'N/A') {
+                md += `- **Directed by:** ${data.Director}\n`;
+            }
+            if (data.Writer && data.Writer !== 'N/A') {
+                md += `- **Written by:** ${data.Writer}\n`;
+            }
+            md += '\n';
+        }
+    }
+
+    // Guest Stars
+    if (options.includeCast && data.GuestStars && data.GuestStars.length > 0) {
+        md += '## Guest Stars\n\n';
+        md += data.GuestStars.join(', ') + '\n\n';
+    }
+
+    return md;
+}
+
+/**
+ * Generate HTML output for TV episode
+ */
+function generateEpisodeHTML(data, options) {
+    let html = '<div class="movie-details episode-details">\n';
+
+    // Title with show name
+    if (options.includeTitle) {
+        html += `  <h2>${escapeHtml(data.ShowTitle)}</h2>\n`;
+        html += `  <h3>Season ${data.SeasonNumber}, Episode ${data.EpisodeNumber}: ${escapeHtml(data.Title)}</h3>\n`;
+    }
+
+    // Episode still image
+    if (data.StillImage) {
+        html += `  <img src="${data.StillImage}" alt="Episode still" class="episode-still">\n`;
+    }
+
+    // Episode info
+    html += '  <ul>\n';
+    if (data.AirDate && data.AirDate !== 'N/A') {
+        html += `    <li><strong>Air Date:</strong> ${data.AirDate}</li>\n`;
+    }
+    if (options.includeRuntime && data.Runtime) {
+        html += `    <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
+    }
+    if (data.TMDbRating && data.TMDbRating !== 'N/A') {
+        html += `    <li><strong>TMDb Rating:</strong> ${data.TMDbRating}/10</li>\n`;
+    }
+    html += '  </ul>\n';
+
+    // Plot
+    if (options.includePlot && data.Plot) {
+        html += `  <h4>Synopsis</h4>\n  <p>${escapeHtml(data.Plot)}</p>\n`;
+    }
+
+    // Crew
+    if (options.includeCrew) {
+        const hasCrew = (data.Director && data.Director !== 'N/A') || (data.Writer && data.Writer !== 'N/A');
+        if (hasCrew) {
+            html += '  <h4>Crew</h4>\n  <ul>\n';
+            if (data.Director && data.Director !== 'N/A') {
+                html += `    <li><strong>Directed by:</strong> ${escapeHtml(data.Director)}</li>\n`;
+            }
+            if (data.Writer && data.Writer !== 'N/A') {
+                html += `    <li><strong>Written by:</strong> ${escapeHtml(data.Writer)}</li>\n`;
+            }
+            html += '  </ul>\n';
+        }
+    }
+
+    // Guest Stars
+    if (options.includeCast && data.GuestStars && data.GuestStars.length > 0) {
+        html += '  <h4>Guest Stars</h4>\n';
+        html += `  <p>${data.GuestStars.map(g => escapeHtml(g)).join(', ')}</p>\n`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Main markdown generation function (updated for episodes)
+ */
+function generateMarkdown(data, options) {
+    if (data.mediaType === 'episode') {
+        return generateEpisodeMarkdown(data, options);
+    }
+    if (data.mediaType === 'tv') {
+        return generateTVMarkdown(data, options);
+    }
+    return generateMovieMarkdown(data, options);
 }

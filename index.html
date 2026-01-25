@@ -121,6 +121,34 @@
             </div>
         </div>
 
+        <!-- Episode Picker (TV Shows only) -->
+        <div class="episode-picker-section" id="episodePickerSection" style="display: none;">
+            <div class="episode-picker-header">
+                <h3>📺 Browse Episodes</h3>
+                <p>Select a season and episode to view details</p>
+            </div>
+            <div class="episode-picker-controls">
+                <div class="form-group">
+                    <label for="seasonSelect">Season</label>
+                    <select id="seasonSelect">
+                        <option value="">-- Select Season --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="episodeSelect">Episode</label>
+                    <select id="episodeSelect" disabled>
+                        <option value="">-- Select Episode --</option>
+                    </select>
+                </div>
+                <button class="episode-fetch-btn" id="fetchEpisodeBtn" onclick="fetchSelectedEpisode()" disabled>
+                    📖 Get Episode Details
+                </button>
+            </div>
+            <div class="episode-preview" id="episodePreview" style="display: none;">
+                <!-- Episode details will be shown here -->
+            </div>
+        </div>
+
         <div class="poster-section" id="posterSection" style="display: none;">
             <div class="poster-header">
                 <h3>Poster</h3>

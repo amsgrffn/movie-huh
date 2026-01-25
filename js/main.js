@@ -69,6 +69,18 @@ function initializeEventListeners() {
             switchMediaType(btn.dataset.type);
         });
     });
+
+    // Episode picker event listeners
+    const seasonSelect = document.getElementById('seasonSelect');
+    const episodeSelect = document.getElementById('episodeSelect');
+
+    if (seasonSelect) {
+        seasonSelect.addEventListener('change', onSeasonChange);
+    }
+
+    if (episodeSelect) {
+        episodeSelect.addEventListener('change', onEpisodeChange);
+    }
 }
 
 // Initialize when DOM is loaded

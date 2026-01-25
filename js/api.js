@@ -370,8 +370,64 @@ async function fetchTVShowFromAPI(title, year) {
         };
 
         generateOutput();
+
+        // Show episode picker for TV shows
+        showEpisodePicker(tvId, details.seasons);
     } catch (error) {
         showError('Error fetching TV show data. Please check your API key and try again.');
         console.error(error);
+    }
+}
+
+/**
+ * Fetch all episodes for a specific season
+ */
+async function fetchSeasonEpisodes(tvId, seasonNumber) {
+    const tmdbApiKey = document.getElementById('tmdbApiKey').value.trim();
+
+    if (!tmdbApiKey) {
+        console.error('TMDb API key required');
+        return null;
+    }
+
+    try {
+        const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${tmdbApiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching season episodes:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetch detailed episode information
+ */
+async function fetchEpisodeDetails(tvId, seasonNumber, episodeNumber) {
+    const tmdbApiKey = document.getElementById('tmdbApiKey').value.trim();
+
+    if (!tmdbApiKey) {
+        showError('TMDb API key required');
+        return null;
+    }
+
+    try {
+        const url = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${tmdbApiKey}`;
+        const creditsUrl = `https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}/credits?api_key=${tmdbApiKey}`;
+
+        const [episodeResponse, creditsResponse] = await Promise.all([
+            fetch(url),
+            fetch(creditsUrl)
+        ]);
+
+        const episode = await episodeResponse.json();
+        const credits = await creditsResponse.json();
+
+        return { episode, credits };
+    } catch (error) {
+        console.error('Error fetching episode details:', error);
+        return null;
     }
 }
