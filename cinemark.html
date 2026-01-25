@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMark - Movie Summary Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(180deg, #f5f5f7 0%, #e8e8ed 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #ffffff 0%, #f9f9fb 100%);
+            padding: 30px;
+            border-bottom: 1px solid #e5e5e5;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #6e6e73;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #0051d5;
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        .options-section {
+            padding: 20px 30px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .options-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #007aff;
+        }
+
+        .checkbox-group label {
+            font-size: 13px;
+            color: #1d1d1f;
+            cursor: pointer;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: #f5f5f7;
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .view-toggle button {
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            color: #6e6e73;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: #ffffff;
+            color: #1d1d1f;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #0051d5;
+        }
+
+        .copy-btn.copied {
+            background: #34c759;
+        }
+
+        .output-container {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .markdown-output {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1d1d1f;
+            white-space: pre-wrap;
+        }
+
+        .html-preview {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1d1d1f;
+        }
+
+        .movie-details h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .movie-details .movie-poster {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .movie-details .meta {
+            color: #6e6e73;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .movie-details .tagline {
+            font-style: italic;
+            color: #6e6e73;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .movie-details .genres {
+            margin-bottom: 20px;
+        }
+
+        .movie-details .genre-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f5f5f7;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: #1d1d1f;
+            transition: all 0.2s;
+        }
+
+        .movie-details .genre-tag:hover {
+            background: #007aff;
+            color: white;
+        }
+
+        .movie-details a {
+            color: #007aff;
+            text-decoration: none;
+        }
+
+        .movie-details a:hover {
+            text-decoration: underline;
+        }
+
+        .movie-details .ratings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .movie-details .rating-card {
+            background: #f5f5f7;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .movie-details .rating-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #007aff;
+        }
+
+        .movie-details .rating-source {
+            font-size: 11px;
+            color: #6e6e73;
+            margin-top: 4px;
+        }
+
+        .movie-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+        }
+
+        .movie-details ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 16px;
+        }
+
+        .movie-details ul li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .movie-details p {
+            margin-bottom: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6e6e73;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #007aff;
+        }
+
+        .error {
+            background: #ff3b30;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .api-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .poster-section {
+            padding: 30px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .poster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .poster-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0;
+        }
+
+        .download-btn {
+            padding: 8px 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: #2da94b;
+        }
+
+        .poster-container {
+            display: flex;
+            justify-content: center;
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .poster-container img {
+            max-width: 900px;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .manual-ratings-section {
+            padding: 30px;
+            background: #fff9e6;
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ff9800;
+            margin: 0 30px 20px 30px;
+            border-radius: 8px;
+        }
+
+        .manual-ratings-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .manual-ratings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .manual-rating-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .manual-rating-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+        }
+
+        .manual-rating-field input {
+            padding: 8px 12px;
+            border: 2px solid #d1d1d6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .manual-rating-field input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .update-ratings-btn {
+            width: 100%;
+            padding: 12px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .update-ratings-btn:hover {
+            background: #2da94b;
+        }
+
+        .update-ratings-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 CineMark</h1>
+            <p>Search for any movie and generate a beautiful markdown summary</p>
+        </div>
+
+        <div class="search-section">
+            <div class="api-notice" id="apiNotice" style="display: none;">
+                Using mock data for testing. Add your OMDb API key below to fetch real movie data.
+            </div>
+            
+            <div class="form-group">
+                <label for="apiKey">OMDb API Key</label>
+                <input type="text" id="apiKey" placeholder="Get free API key at omdbapi.com" value="c7c06a7c">
+            </div>
+
+            <div class="form-group">
+                <label for="tmdbApiKey">TMDb API Key (for high-res posters)</label>
+                <input type="text" id="tmdbApiKey" placeholder="Get free API key at themoviedb.org/settings/api" value="6ba568970f260dcd909b33c000890463">
+            </div>
+
+            <div class="form-group">
+                <label for="movieTitle">Movie Title</label>
+                <input type="text" id="movieTitle" placeholder="Enter movie title..." value="Interstellar">
+            </div>
+
+            <div class="form-group">
+                <label for="movieYear">Year (optional)</label>
+                <input type="text" id="movieYear" placeholder="e.g., 2014" value="2014">
+            </div>
+
+            <button class="search-btn" onclick="searchMovie()">🔍 Search Movie</button>
+        </div>
+
+        <div class="options-section">
+            <div class="options-title">Include in Output:</div>
+            <div class="options-grid">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTitle" checked>
+                    <label for="includeTitle">Title</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeYear" checked>
+                    <label for="includeYear">Year</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeRuntime" checked>
+                    <label for="includeRuntime">Runtime</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeGenres" checked>
+                    <label for="includeGenres">Genres</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTagline" checked>
+                    <label for="includeTagline">Tagline/Quote</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeRatings" checked>
+                    <label for="includeRatings">Ratings</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeLetterboxd" checked>
+                    <label for="includeLetterboxd">Letterboxd Rating</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeTMDb" checked>
+                    <label for="includeTMDb">TMDb Rating</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includePlot" checked>
+                    <label for="includePlot">Plot Summary</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeCast" checked>
+                    <label for="includeCast">Cast</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeCrew" checked>
+                    <label for="includeCrew">Key Crew</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeLink" checked>
+                    <label for="includeLink">Letterboxd Link</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="poster-section" id="posterSection" style="display: none;">
+            <div class="poster-header">
+                <h3>Movie Poster</h3>
+                <a id="downloadPosterBtn" class="download-btn" download>💾 Download Image</a>
+            </div>
+            <div class="poster-container">
+                <img id="posterImage" src="" alt="Movie poster" />
+            </div>
+        </div>
+
+        <div class="manual-ratings-section" id="manualRatingsSection" style="display: none;">
+            <div class="manual-ratings-header">
+                <h3>⚠️ Missing Ratings - Enter Manually</h3>
+                <p style="font-size: 13px; color: #6e6e73; margin-top: 8px;">Some ratings couldn't be fetched. Enter them manually below and click Update.</p>
+            </div>
+            <div class="manual-ratings-grid" id="manualRatingsGrid">
+                <!-- Dynamic fields will be added here -->
+            </div>
+            <button class="update-ratings-btn" onclick="updateWithManualRatings()">✓ Update Output with Manual Ratings</button>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="view-toggle">
+                    <button class="active" onclick="switchView('markdown')">Raw Markdown</button>
+                    <button onclick="switchView('html')">HTML Preview</button>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+            </div>
+
+            <div class="output-container" id="outputContainer">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                        <polyline points="17 2 12 7 7 2"></polyline>
+                    </svg>
+                    <p>Search for a movie to generate output</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'markdown';
+        let currentMovieData = null;
+
+        // Mock data for testing
+        const mockMovieData = {
+            "Interstellar": {
+                Title: "Interstellar",
+                Year: "2014",
+                Runtime: "169 min",
+                Genre: "Adventure, Drama, Science Fiction",
+                Plot: "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+                Actors: "Matthew McConaughey, Anne Hathaway, Michael Caine, Jessica Chastain, Casey Affleck",
+                Director: "Christopher Nolan",
+                Writer: "Jonathan Nolan",
+                Producer: "Lynda Obst",
+                Cinematographer: "Hoyte van Hoytema",
+                Editor: "Lee Smith",
+                imdbID: "tt0816692",
+                imdbRating: "8.7",
+                Metascore: "74",
+                RottenTomatoes: "73%",
+                TMDbRating: "8.4",
+                Tagline: "Mankind was born on Earth. It was never meant to die here.",
+                LetterboxdRating: "4.2",
+                Poster: "https://image.tmdb.org/t/p/original/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+                LetterboxdLinks: {
+                    cast: {
+                        "Matthew McConaughey": "https://letterboxd.com/actor/matthew-mcconaughey/",
+                        "Anne Hathaway": "https://letterboxd.com/actor/anne-hathaway/",
+                        "Michael Caine": "https://letterboxd.com/actor/michael-caine/",
+                        "Jessica Chastain": "https://letterboxd.com/actor/jessica-chastain/",
+                        "Casey Affleck": "https://letterboxd.com/actor/casey-affleck/"
+                    },
+                    crew: {
+                        "Christopher Nolan": "https://letterboxd.com/director/christopher-nolan/",
+                        "Jonathan Nolan": "https://letterboxd.com/writer/jonathan-nolan/"
+                    },
+                    genres: [
+                        { name: "Adventure", url: "https://letterboxd.com/films/genre/adventure/" },
+                        { name: "Drama", url: "https://letterboxd.com/films/genre/drama/" },
+                        { name: "Science Fiction", url: "https://letterboxd.com/films/genre/science-fiction/" }
+                    ]
+                }
+            }
+        };
+
+        function searchMovie() {
+            const title = document.getElementById('movieTitle').value.trim();
+            const year = document.getElementById('movieYear').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+
+            if (!title) {
+                showError('Please enter a movie title');
+                return;
+            }
+
+            if (apiKey) {
+                fetchMovieFromAPI(title, year, apiKey);
+            } else {
+                // Use mock data
+                document.getElementById('apiNotice').style.display = 'block';
+                if (mockMovieData[title]) {
+                    currentMovieData = mockMovieData[title];
+                    generateOutput();
+                } else {
+                    showError('Mock data only available for "Interstellar". Add an API key to search other movies.');
+                }
+            }
+        }
+
+        async function fetchMovieFromTMDB(title, year) {
+            const outputContainer = document.getElementById('outputContainer');
+            const tmdbApiKey = document.getElementById('tmdbApiKey').value.trim();
+            
+            if (!tmdbApiKey) {
+                showError('TMDb API key required to search this movie. Please add your TMDb API key.');
+                return;
+            }
+
+            try {
+                outputContainer.innerHTML = '<div class="loading">Searching TMDb...</div>';
+                
+                // Search for the movie on TMDb
+                let searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}`;
+                if (year) {
+                    searchUrl += `&year=${year}`;
+                }
+                
+                const searchResponse = await fetch(searchUrl);
+                const searchData = await searchResponse.json();
+                
+                if (!searchData.results || searchData.results.length === 0) {
+                    showError('Movie not found on TMDb');
+                    return;
+                }
+                
+                const movie = searchData.results[0];
+                const movieId = movie.id;
+                
+                // Fetch detailed movie data
+                outputContainer.innerHTML = '<div class="loading">Fetching movie details...</div>';
+                const detailsUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${tmdbApiKey}`;
+                const creditsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${tmdbApiKey}`;
+                
+                const [detailsResponse, creditsResponse] = await Promise.all([
+                    fetch(detailsUrl),
+                    fetch(creditsUrl)
+                ]);
+                
+                const details = await detailsResponse.json();
+                const credits = await creditsResponse.json();
+                
+                // Get TMDb rating
+                const tmdbRating = details.vote_average ? details.vote_average.toFixed(1) : 'N/A';
+                
+                // Fetch Letterboxd data
+                outputContainer.innerHTML = '<div class="loading">Fetching additional data from Letterboxd...</div>';
+                const [letterboxdRating, letterboxdLinks] = await Promise.all([
+                    fetchLetterboxdRating(details.title, details.release_date?.split('-')[0]),
+                    fetchLetterboxdLinks(details.title, details.release_date?.split('-')[0])
+                ]);
+                
+                // Extract crew info
+                const director = credits.crew.find(person => person.job === 'Director')?.name || 'N/A';
+                const writer = credits.crew.find(person => person.job === 'Writer' || person.job === 'Screenplay')?.name || 'N/A';
+                const producer = credits.crew.find(person => person.job === 'Producer')?.name || 'N/A';
+                const cinematographer = credits.crew.find(person => person.job === 'Director of Photography')?.name || 'N/A';
+                const editor = credits.crew.find(person => person.job === 'Editor')?.name || 'N/A';
+                
+                // Get top 5 cast members
+                const topCast = credits.cast.slice(0, 5).map(actor => actor.name).join(', ');
+                
+                // Convert runtime from minutes to "XXX min" format
+                const runtime = details.runtime ? `${details.runtime} min` : 'N/A';
+                
+                // Get genres
+                const genres = details.genres.map(g => g.name).join(', ');
+                
+                // Get IMDb ID
+                const externalUrl = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${tmdbApiKey}`;
+                const externalResponse = await fetch(externalUrl);
+                const externalData = await externalResponse.json();
+                const imdbID = externalData.imdb_id || 'N/A';
+                
+                // Scrape ratings from all sources
+                outputContainer.innerHTML = '<div class="loading">Scraping ratings from IMDb, Metacritic, and Rotten Tomatoes...</div>';
+                const [imdbRating, metacriticScore, rtScore] = await Promise.all([
+                    scrapeIMDbRating(imdbID),
+                    scrapeMetacriticScore(details.title),
+                    scrapeRottenTomatoesScore(details.title)
+                ]);
+                
+                currentMovieData = {
+                    Title: details.title,
+                    Year: details.release_date?.split('-')[0] || 'N/A',
+                    Runtime: runtime,
+                    Genre: genres,
+                    Plot: details.overview || 'N/A',
+                    Actors: topCast || 'N/A',
+                    Director: director,
+                    Writer: writer,
+                    Producer: producer,
+                    Cinematographer: cinematographer,
+                    Editor: editor,
+                    imdbID: imdbID,
+                    imdbRating: imdbRating,
+                    Metascore: metacriticScore,
+                    RottenTomatoes: rtScore,
+                    TMDbRating: tmdbRating,
+                    Tagline: details.tagline || (details.overview ? details.overview.split('.')[0] + '.' : ''),
+                    LetterboxdRating: letterboxdRating,
+                    LetterboxdLinks: letterboxdLinks,
+                    Poster: details.poster_path ? `https://image.tmdb.org/t/p/original${details.poster_path}` : null
+                };
+                
+                generateOutput();
+            } catch (error) {
+                showError('Error fetching movie data from TMDb. Please check your API key and try again.');
+                console.error(error);
+            }
+        }
+
+        async function fetchMovieFromAPI(title, year, apiKey) {
+            const outputContainer = document.getElementById('outputContainer');
+            outputContainer.innerHTML = '<div class="loading">Searching for movie...</div>';
+
+            try {
+                let url = `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}&plot=full`;
+                if (year) {
+                    url += `&y=${year}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.Response === "True") {
+                    document.getElementById('apiNotice').style.display = 'none';
+                    
+                    // Try to fetch Letterboxd data and TMDb data
+                    outputContainer.innerHTML = '<div class="loading">Fetching additional data from Letterboxd and TMDb...</div>';
+                    const [letterboxdRating, letterboxdLinks, tmdbData] = await Promise.all([
+                        fetchLetterboxdRating(data.Title, data.Year),
+                        fetchLetterboxdLinks(data.Title, data.Year),
+                        fetchTMDBData(data.Title, data.Year)
+                    ]);
+                    
+                    currentMovieData = {
+                        Title: data.Title,
+                        Year: data.Year,
+                        Runtime: data.Runtime,
+                        Genre: data.Genre,
+                        Plot: data.Plot,
+                        Actors: data.Actors,
+                        Director: data.Director,
+                        Writer: data.Writer,
+                        Producer: data.Producer || "N/A",
+                        Cinematographer: tmdbData.crew?.Cinematographer || "N/A",
+                        Editor: tmdbData.crew?.Editor || "N/A",
+                        imdbID: data.imdbID,
+                        imdbRating: data.imdbRating,
+                        Metascore: data.Metascore,
+                        RottenTomatoes: data.Ratings?.find(r => r.Source === "Rotten Tomatoes")?.Value || "N/A",
+                        TMDbRating: tmdbData.rating || "N/A",
+                        Tagline: data.Plot.split('.')[0] + '.', // Using first sentence as tagline
+                        LetterboxdRating: letterboxdRating,
+                        LetterboxdLinks: letterboxdLinks,
+                        Poster: tmdbData.poster || (data.Poster !== "N/A" ? data.Poster : null)
+                    };
+                    generateOutput();
+                } else {
+                    // OMDb didn't find it, try TMDb as fallback
+                    console.log('OMDb search failed, trying TMDb fallback...');
+                    outputContainer.innerHTML = '<div class="loading">Movie not found in OMDb, trying TMDb...</div>';
+                    await fetchMovieFromTMDB(title, year);
+                }
+            } catch (error) {
+                showError('Error fetching movie data. Please check your API key and try again.');
+                console.error(error);
+            }
+        }
+
+        async function scrapeIMDbRating(imdbID) {
+            if (!imdbID || imdbID === 'N/A') return 'N/A';
+            
+            try {
+                const imdbUrl = `https://www.imdb.com/title/${imdbID}/`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(imdbUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.contents) {
+                    // Try regex pattern first (most reliable)
+                    const ratingMatch = data.contents.match(/"ratingValue":"?([\d.]+)"?/);
+                    if (ratingMatch && ratingMatch[1]) {
+                        return ratingMatch[1];
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // Try to find rating in JSON-LD
+                    const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    for (const script of scripts) {
+                        try {
+                            const jsonData = JSON.parse(script.textContent);
+                            if (jsonData.aggregateRating?.ratingValue) {
+                                return jsonData.aggregateRating.ratingValue.toString();
+                            }
+                        } catch (e) {
+                            continue;
+                        }
+                    }
+                }
+                
+                console.log('Could not scrape IMDb rating for', imdbID);
+                return 'N/A';
+            } catch (error) {
+                console.error('Error scraping IMDb rating:', error);
+                return 'N/A';
+            }
+        }
+
+        async function scrapeMetacriticScore(title) {
+            try {
+                const slug = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                
+                const metacriticUrl = `https://www.metacritic.com/movie/${slug}/`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(metacriticUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.contents) {
+                    // Try regex pattern
+                    const scoreMatch = data.contents.match(/metascore_w.*?>(\d+)</i);
+                    if (scoreMatch && scoreMatch[1]) {
+                        return scoreMatch[1];
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // Try multiple selectors
+                    const selectors = [
+                        '.c-siteReviewScore span',
+                        '[data-v-4cdca9fc] span',
+                        '.metascore_w'
+                    ];
+                    
+                    for (const selector of selectors) {
+                        const element = doc.querySelector(selector);
+                        if (element && element.textContent.trim()) {
+                            const score = element.textContent.trim();
+                            if (/^\d+$/.test(score)) {
+                                return score;
+                            }
+                        }
+                    }
+                }
+                
+                console.log('Could not scrape Metacritic score for', title);
+                return 'N/A';
+            } catch (error) {
+                console.error('Error scraping Metacritic score:', error);
+                return 'N/A';
+            }
+        }
+
+        async function scrapeRottenTomatoesScore(title) {
+            try {
+                const slug = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '_')
+                    .replace(/\s+/g, '_')
+                    .replace(/_+/g, '_');
+                
+                const rtUrl = `https://www.rottentomatoes.com/m/${slug}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rtUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.contents) {
+                    // Try regex pattern
+                    const scoreMatch = data.contents.match(/tomatometerscore['"]\s*:\s*['"]([\d]+)['"]/i);
+                    if (scoreMatch && scoreMatch[1]) {
+                        return `${scoreMatch[1]}%`;
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // Try to find tomatometer score
+                    const scoreElement = doc.querySelector('score-board[tomatometerscore]');
+                    if (scoreElement) {
+                        const score = scoreElement.getAttribute('tomatometerscore');
+                        if (score) {
+                            return `${score}%`;
+                        }
+                    }
+                }
+                
+                console.log('Could not scrape Rotten Tomatoes score for', title);
+                return 'N/A';
+            } catch (error) {
+                console.error('Error scraping Rotten Tomatoes score:', error);
+                return 'N/A';
+            }
+        }
+
+        async function fetchLetterboxdRating(title, year) {
+            try {
+                // Create Letterboxd-style slug
+                const slug = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                
+                // Try to fetch the Letterboxd page via a CORS proxy
+                const letterboxdUrl = `https://letterboxd.com/film/${slug}-${year}/`;
+                
+                // Using allOrigins as a CORS proxy
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(letterboxdUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.contents) {
+                    // Parse the HTML to find the rating
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // Letterboxd stores rating in meta tag
+                    const ratingMeta = doc.querySelector('meta[name="twitter:data2"]');
+                    if (ratingMeta) {
+                        const ratingText = ratingMeta.getAttribute('content');
+                        // Extract just the number (e.g., "4.2 out of 5" -> "4.2")
+                        const rating = ratingText.match(/[\d.]+/)?.[0];
+                        return rating || "N/A";
+                    }
+                    
+                    // Alternative: try to find in JSON-LD
+                    const scriptTag = doc.querySelector('script[type="application/ld+json"]');
+                    if (scriptTag) {
+                        const jsonData = JSON.parse(scriptTag.textContent);
+                        if (jsonData.aggregateRating?.ratingValue) {
+                            return jsonData.aggregateRating.ratingValue.toString();
+                        }
+                    }
+                }
+                
+                return "N/A";
+            } catch (error) {
+                console.error('Error fetching Letterboxd rating:', error);
+                return "N/A";
+            }
+        }
+
+        async function fetchTMDBData(title, year) {
+            try {
+                // Get TMDb API key from input
+                const tmdbApiKey = document.getElementById('tmdbApiKey').value.trim();
+                
+                if (!tmdbApiKey) {
+                    console.log('No TMDb API key provided, skipping TMDb data fetch');
+                    return { poster: null, crew: {}, rating: null };
+                }
+                
+                // Search for the movie on TMDb
+                const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&year=${year}`;
+                
+                const searchResponse = await fetch(searchUrl);
+                const searchData = await searchResponse.json();
+                
+                if (!searchData.results || searchData.results.length === 0) {
+                    return { poster: null, crew: {}, rating: null };
+                }
+                
+                const movie = searchData.results[0];
+                const movieId = movie.id;
+                let poster = null;
+                let tmdbRating = null;
+                
+                if (movie.poster_path) {
+                    poster = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
+                }
+                
+                // Get TMDb rating (vote_average is out of 10)
+                if (movie.vote_average) {
+                    tmdbRating = movie.vote_average.toFixed(1);
+                }
+                
+                // Fetch detailed movie data to get crew information
+                const detailsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${tmdbApiKey}`;
+                const detailsResponse = await fetch(detailsUrl);
+                const detailsData = await detailsResponse.json();
+                
+                const crew = {};
+                
+                if (detailsData.crew) {
+                    // Find cinematographer (Director of Photography)
+                    const cinematographer = detailsData.crew.find(person => 
+                        person.job === 'Director of Photography' || person.job === 'Cinematography'
+                    );
+                    if (cinematographer) {
+                        crew.Cinematographer = cinematographer.name;
+                    }
+                    
+                    // Find editor
+                    const editor = detailsData.crew.find(person => person.job === 'Editor');
+                    if (editor) {
+                        crew.Editor = editor.name;
+                    }
+                }
+                
+                return { poster, crew, rating: tmdbRating };
+            } catch (error) {
+                console.error('Error fetching TMDb data:', error);
+                return { poster: null, crew: {}, rating: null };
+            }
+        }
+
+        async function fetchLetterboxdLinks(title, year) {
+            try {
+                const slug = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                
+                const letterboxdUrl = `https://letterboxd.com/film/${slug}-${year}/`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(letterboxdUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (!data.contents) return null;
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                
+                const links = {
+                    cast: {},
+                    crew: {},
+                    genres: []
+                };
+                
+                // Extract cast links
+                const castLinks = doc.querySelectorAll('a[href*="/actor/"]');
+                castLinks.forEach(link => {
+                    const name = link.textContent.trim();
+                    const href = link.getAttribute('href');
+                    if (name && href) {
+                        links.cast[name] = `https://letterboxd.com${href}`;
+                    }
+                });
+                
+                // Extract crew links (director, writer, producer)
+                const directorLinks = doc.querySelectorAll('a[href*="/director/"]');
+                directorLinks.forEach(link => {
+                    const name = link.textContent.trim();
+                    const href = link.getAttribute('href');
+                    if (name && href) {
+                        links.crew[name] = `https://letterboxd.com${href}`;
+                    }
+                });
+                
+                // Extract genre links
+                const genreLinks = doc.querySelectorAll('a[href*="/films/genre/"]');
+                genreLinks.forEach(link => {
+                    const genre = link.textContent.trim();
+                    const href = link.getAttribute('href');
+                    if (genre && href) {
+                        links.genres.push({
+                            name: genre,
+                            url: `https://letterboxd.com${href}`
+                        });
+                    }
+                });
+                
+                return links;
+            } catch (error) {
+                console.error('Error fetching Letterboxd links:', error);
+                return null;
+            }
+        }
+
+        function getIMDbURL(imdbID) {
+            return `https://www.imdb.com/title/${imdbID}/`;
+        }
+
+        function getLetterboxdURL(title, year) {
+            const slug = title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            return `https://letterboxd.com/film/${slug}-${year}/`;
+        }
+
+        function getMetacriticURL(title) {
+            const slug = title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            return `https://www.metacritic.com/movie/${slug}/`;
+        }
+
+        function getRottenTomatoesURL(title) {
+            const slug = title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '_')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_');
+            return `https://www.rottentomatoes.com/m/${slug}`;
+        }
+
+        function getTMDbURL(title, year) {
+            const slug = title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            // TMDb URLs don't always follow a predictable pattern, so we'll use search
+            return `https://www.themoviedb.org/search?query=${encodeURIComponent(title)}`;
+        }
+
+        function createSlug(name) {
+            return name.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        function getLetterboxdGenreLink(genre) {
+            const slug = createSlug(genre);
+            return `https://letterboxd.com/films/genre/${slug}/`;
+        }
+
+        function getLetterboxdActorLink(name) {
+            const slug = createSlug(name);
+            return `https://letterboxd.com/actor/${slug}/`;
+        }
+
+        function getLetterboxdDirectorLink(name) {
+            const slug = createSlug(name);
+            return `https://letterboxd.com/director/${slug}/`;
+        }
+
+        function getTMDBSearchLink(name, type) {
+            // Fallback to TMDB search
+            return `https://www.themoviedb.org/search?query=${encodeURIComponent(name)}`;
+        }
+
+        function generateOutput() {
+            const options = getOptions();
+            const markdown = generateMarkdown(currentMovieData, options);
+            const html = generateHTML(currentMovieData, options);
+
+            // Show/hide poster section
+            const posterSection = document.getElementById('posterSection');
+            const posterImage = document.getElementById('posterImage');
+            const downloadBtn = document.getElementById('downloadPosterBtn');
+
+            if (currentMovieData.Poster) {
+                posterSection.style.display = 'block';
+                posterImage.src = currentMovieData.Poster;
+                posterImage.alt = `${currentMovieData.Title} poster`;
+                
+                // Set up download link
+                const fileName = `${currentMovieData.Title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-poster.jpg`;
+                downloadBtn.href = currentMovieData.Poster;
+                downloadBtn.download = fileName;
+            } else {
+                posterSection.style.display = 'none';
+            }
+
+            // Check for missing ratings and show manual input if needed
+            checkMissingRatings();
+
+            if (currentView === 'markdown') {
+                showMarkdown(markdown);
+            } else {
+                showHTML(html);
+            }
+        }
+
+        function checkMissingRatings() {
+            const manualRatingsSection = document.getElementById('manualRatingsSection');
+            const manualRatingsGrid = document.getElementById('manualRatingsGrid');
+            
+            const missingRatings = [];
+            
+            if (!currentMovieData.imdbRating || currentMovieData.imdbRating === 'N/A') {
+                missingRatings.push({ key: 'imdbRating', label: 'IMDb Rating', placeholder: 'e.g., 7.5', suffix: '/10' });
+            }
+            if (!currentMovieData.LetterboxdRating || currentMovieData.LetterboxdRating === 'N/A') {
+                missingRatings.push({ key: 'LetterboxdRating', label: 'Letterboxd Rating', placeholder: 'e.g., 3.8', suffix: '/5' });
+            }
+            if (!currentMovieData.Metascore || currentMovieData.Metascore === 'N/A') {
+                missingRatings.push({ key: 'Metascore', label: 'Metacritic Score', placeholder: 'e.g., 65', suffix: '/100' });
+            }
+            if (!currentMovieData.RottenTomatoes || currentMovieData.RottenTomatoes === 'N/A') {
+                missingRatings.push({ key: 'RottenTomatoes', label: 'Rotten Tomatoes', placeholder: 'e.g., 75%', suffix: '' });
+            }
+            if (!currentMovieData.TMDbRating || currentMovieData.TMDbRating === 'N/A') {
+                missingRatings.push({ key: 'TMDbRating', label: 'TMDb Rating', placeholder: 'e.g., 7.2', suffix: '/10' });
+            }
+            
+            if (missingRatings.length > 0) {
+                manualRatingsSection.style.display = 'block';
+                manualRatingsGrid.innerHTML = '';
+                
+                missingRatings.forEach(rating => {
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'manual-rating-field';
+                    fieldDiv.innerHTML = `
+                        <label>${rating.label} ${rating.suffix}</label>
+                        <input type="text" 
+                               id="manual_${rating.key}" 
+                               placeholder="${rating.placeholder}"
+                               data-key="${rating.key}">
+                    `;
+                    manualRatingsGrid.appendChild(fieldDiv);
+                });
+            } else {
+                manualRatingsSection.style.display = 'none';
+            }
+        }
+
+        function updateWithManualRatings() {
+            const inputs = document.querySelectorAll('.manual-rating-field input');
+            
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-key');
+                const value = input.value.trim();
+                
+                if (value) {
+                    currentMovieData[key] = value;
+                }
+            });
+            
+            // Hide manual ratings section
+            document.getElementById('manualRatingsSection').style.display = 'none';
+            
+            // Regenerate output with updated data
+            generateOutput();
+        }
+
+        function getOptions() {
+            return {
+                includeTitle: document.getElementById('includeTitle').checked,
+                includeYear: document.getElementById('includeYear').checked,
+                includeRuntime: document.getElementById('includeRuntime').checked,
+                includeGenres: document.getElementById('includeGenres').checked,
+                includeTagline: document.getElementById('includeTagline').checked,
+                includeRatings: document.getElementById('includeRatings').checked,
+                includeLetterboxd: document.getElementById('includeLetterboxd').checked,
+                includeTMDb: document.getElementById('includeTMDb').checked,
+                includePlot: document.getElementById('includePlot').checked,
+                includeCast: document.getElementById('includeCast').checked,
+                includeCrew: document.getElementById('includeCrew').checked,
+                includeLink: document.getElementById('includeLink').checked
+            };
+        }
+
+        function generateMarkdown(data, options) {
+            let md = '';
+
+            if (options.includeLink) {
+                const slug = data.Title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                md += `# [${data.Title}`;
+                if (options.includeYear && data.Year) {
+                    md += ` (${data.Year})`;
+                }
+                md += `](https://letterboxd.com/film/${slug}-${data.Year}/)\n\n`;
+            } else if (options.includeTitle) {
+                md += `# ${data.Title}`;
+                if (options.includeYear && data.Year) {
+                    md += ` (${data.Year})`;
+                }
+                md += '\n\n';
+            }
+
+            if (options.includeTagline && data.Tagline) {
+                md += `> *"${data.Tagline}"*\n\n`;
+            }
+
+            // Details section
+            md += '## Details\n\n';
+            if (options.includeRuntime && data.Runtime) {
+                md += `- **Runtime:** ${data.Runtime}\n`;
+            }
+            if (options.includeGenres && data.Genre) {
+                const genres = data.Genre.split(', ');
+                const genreLinks = genres.map(genre => {
+                    let genreUrl = getLetterboxdGenreLink(genre);
+                    if (data.LetterboxdLinks?.genres) {
+                        const found = data.LetterboxdLinks.genres.find(g => 
+                            g.name.toLowerCase() === genre.toLowerCase()
+                        );
+                        if (found) genreUrl = found.url;
+                    }
+                    return `[${genre}](${genreUrl})`;
+                });
+                md += `- **Genres:** ${genreLinks.join(', ')}\n`;
+            }
+            md += '\n';
+
+            // Ratings
+            if (options.includeRatings) {
+                md += '## Ratings\n\n';
+                if (data.imdbRating && data.imdbRating !== 'N/A') {
+                    const imdbUrl = getIMDbURL(data.imdbID);
+                    md += `- **IMDb:** [${data.imdbRating}/10](${imdbUrl})\n`;
+                }
+                if (options.includeLetterboxd && data.LetterboxdRating && data.LetterboxdRating !== 'N/A') {
+                    const letterboxdUrl = getLetterboxdURL(data.Title, data.Year);
+                    md += `- **Letterboxd:** [${data.LetterboxdRating}/5](${letterboxdUrl})\n`;
+                }
+                if (data.Metascore && data.Metascore !== 'N/A') {
+                    const metacriticUrl = getMetacriticURL(data.Title);
+                    md += `- **Metacritic:** [${data.Metascore}/100](${metacriticUrl})\n`;
+                }
+                if (data.RottenTomatoes && data.RottenTomatoes !== 'N/A') {
+                    const rtUrl = getRottenTomatoesURL(data.Title);
+                    md += `- **Rotten Tomatoes:** [${data.RottenTomatoes}](${rtUrl})\n`;
+                }
+                if (options.includeTMDb && data.TMDbRating && data.TMDbRating !== 'N/A') {
+                    const tmdbUrl = getTMDbURL(data.Title, data.Year);
+                    md += `- **TMDb:** [${data.TMDbRating}/10](${tmdbUrl})\n`;
+                }
+                md += '\n';
+            }
+
+            // Plot
+            if (options.includePlot && data.Plot) {
+                md += '## Plot Summary\n\n';
+                md += `${data.Plot}\n\n`;
+            }
+
+            // Cast
+            if (options.includeCast && data.Actors) {
+                md += '## Cast\n\n';
+                const actors = data.Actors.split(', ');
+                const actorLinks = actors.map(actor => {
+                    let actorUrl = data.LetterboxdLinks?.cast?.[actor] || getLetterboxdActorLink(actor);
+                    return `[${actor}](${actorUrl})`;
+                });
+                md += `${actorLinks.join(', ')}\n\n`;
+            }
+
+            // Crew
+            if (options.includeCrew) {
+                md += '## Key Crew\n\n';
+                if (data.Director) {
+                    const directorUrl = data.LetterboxdLinks?.crew?.[data.Director] || getLetterboxdDirectorLink(data.Director);
+                    md += `- **Director:** [${data.Director}](${directorUrl})\n`;
+                }
+                if (data.Writer) {
+                    const writerUrl = data.LetterboxdLinks?.crew?.[data.Writer] || getTMDBSearchLink(data.Writer, 'person');
+                    md += `- **Writer:** [${data.Writer}](${writerUrl})\n`;
+                }
+                if (data.Cinematographer && data.Cinematographer !== 'N/A') {
+                    const cinematographerUrl = data.LetterboxdLinks?.crew?.[data.Cinematographer] || getTMDBSearchLink(data.Cinematographer, 'person');
+                    md += `- **Cinematographer:** [${data.Cinematographer}](${cinematographerUrl})\n`;
+                }
+                if (data.Editor && data.Editor !== 'N/A') {
+                    const editorUrl = data.LetterboxdLinks?.crew?.[data.Editor] || getTMDBSearchLink(data.Editor, 'person');
+                    md += `- **Editor:** [${data.Editor}](${editorUrl})\n`;
+                }
+                if (data.Producer && data.Producer !== 'N/A') {
+                    const producerUrl = data.LetterboxdLinks?.crew?.[data.Producer] || getTMDBSearchLink(data.Producer, 'person');
+                    md += `- **Producer:** [${data.Producer}](${producerUrl})\n`;
+                }
+            }
+
+            return md;
+        }
+
+        function generateHTML(data, options) {
+            let html = '<div class="movie-details">\n';
+
+            if (options.includeTitle) {
+                if (options.includeLink) {
+                    const slug = data.Title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    html += `  <h2><a href="https://letterboxd.com/film/${slug}-${data.Year}/">${data.Title}</a></h2>\n`;
+                } else {
+                    html += `  <h2>${data.Title}</h2>\n`;
+                }
+            }
+
+            // Year, Runtime, Genres as list
+            if (options.includeYear || options.includeRuntime || options.includeGenres) {
+                html += '  <ul>\n';
+                if (options.includeYear && data.Year) {
+                    html += `    <li><strong>Year:</strong> ${data.Year}</li>\n`;
+                }
+                if (options.includeRuntime && data.Runtime) {
+                    html += `    <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
+                }
+                if (options.includeGenres && data.Genre) {
+                    const genres = data.Genre.split(', ');
+                    const genreLinks = genres.map(genre => {
+                        let genreUrl = getLetterboxdGenreLink(genre);
+                        if (data.LetterboxdLinks?.genres) {
+                            const found = data.LetterboxdLinks.genres.find(g => 
+                                g.name.toLowerCase() === genre.toLowerCase()
+                            );
+                            if (found) genreUrl = found.url;
+                        }
+                        return `<a href="${genreUrl}" target="_blank">${genre}</a>`;
+                    });
+                    html += `    <li><strong>Genres:</strong> ${genreLinks.join(', ')}</li>\n`;
+                }
+                html += '  </ul>\n';
+            }
+
+            if (options.includeTagline && data.Tagline) {
+                html += `  <p class="tagline"><em>"${data.Tagline}"</em></p>\n`;
+            }
+
+            // Ratings as list
+            if (options.includeRatings) {
+                html += '  <h3>Ratings</h3>\n';
+                html += '  <ul>\n';
+                if (data.imdbRating && data.imdbRating !== 'N/A') {
+                    const imdbUrl = getIMDbURL(data.imdbID);
+                    html += `    <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
+                }
+                if (options.includeLetterboxd && data.LetterboxdRating && data.LetterboxdRating !== 'N/A') {
+                    const letterboxdUrl = getLetterboxdURL(data.Title, data.Year);
+                    html += `    <li><strong>Letterboxd:</strong> <a href="${letterboxdUrl}" target="_blank">${data.LetterboxdRating}/5</a></li>\n`;
+                }
+                if (data.Metascore && data.Metascore !== 'N/A') {
+                    const metacriticUrl = getMetacriticURL(data.Title);
+                    html += `    <li><strong>Metacritic:</strong> <a href="${metacriticUrl}" target="_blank">${data.Metascore}/100</a></li>\n`;
+                }
+                if (data.RottenTomatoes && data.RottenTomatoes !== 'N/A') {
+                    const rtUrl = getRottenTomatoesURL(data.Title);
+                    html += `    <li><strong>Rotten Tomatoes:</strong> <a href="${rtUrl}" target="_blank">${data.RottenTomatoes}</a></li>\n`;
+                }
+                if (options.includeTMDb && data.TMDbRating && data.TMDbRating !== 'N/A') {
+                    const tmdbUrl = getTMDbURL(data.Title, data.Year);
+                    html += `    <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
+                }
+                html += '  </ul>\n';
+            }
+
+            if (options.includePlot && data.Plot) {
+                html += `  <h3>Plot Summary</h3>\n  <p>${data.Plot}</p>\n`;
+            }
+
+            if (options.includeCast && data.Actors) {
+                html += '  <h3>Cast</h3>\n  <p>';
+                const actors = data.Actors.split(', ');
+                const actorLinks = actors.map(actor => {
+                    // Try to use scraped Letterboxd link first
+                    let actorUrl = data.LetterboxdLinks?.cast?.[actor] || getLetterboxdActorLink(actor);
+                    return `<a href="${actorUrl}" target="_blank">${actor}</a>`;
+                });
+                html += actorLinks.join(', ');
+                html += '</p>\n';
+            }
+
+            if (options.includeCrew) {
+                html += '  <h3>Key Crew</h3>\n  <p>\n';
+                if (data.Director) {
+                    const directorUrl = data.LetterboxdLinks?.crew?.[data.Director] || getLetterboxdDirectorLink(data.Director);
+                    html += `    <strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a><br>\n`;
+                }
+                if (data.Writer) {
+                    const writerUrl = data.LetterboxdLinks?.crew?.[data.Writer] || getTMDBSearchLink(data.Writer, 'person');
+                    html += `    <strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a><br>\n`;
+                }
+                if (data.Cinematographer && data.Cinematographer !== 'N/A') {
+                    const cinematographerUrl = data.LetterboxdLinks?.crew?.[data.Cinematographer] || getTMDBSearchLink(data.Cinematographer, 'person');
+                    html += `    <strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a><br>\n`;
+                }
+                if (data.Editor && data.Editor !== 'N/A') {
+                    const editorUrl = data.LetterboxdLinks?.crew?.[data.Editor] || getTMDBSearchLink(data.Editor, 'person');
+                    html += `    <strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a><br>\n`;
+                }
+                if (data.Producer && data.Producer !== 'N/A') {
+                    const producerUrl = data.LetterboxdLinks?.crew?.[data.Producer] || getTMDBSearchLink(data.Producer, 'person');
+                    html += `    <strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a>\n`;
+                }
+                html += '  </p>\n';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function showMarkdown(markdown) {
+            const container = document.getElementById('outputContainer');
+            container.innerHTML = `<div class="markdown-output">${escapeHtml(markdown)}</div>`;
+        }
+
+        function showHTML(html) {
+            const container = document.getElementById('outputContainer');
+            container.innerHTML = `<div class="html-preview">${html}</div>`;
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.view-toggle button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Regenerate output if we have movie data
+            if (currentMovieData) {
+                generateOutput();
+            }
+        }
+
+        async function copyToClipboard() {
+            if (!currentMovieData) {
+                showError('No movie data to copy');
+                return;
+            }
+
+            const options = getOptions();
+            let textToCopy;
+
+            if (currentView === 'markdown') {
+                textToCopy = generateMarkdown(currentMovieData, options);
+            } else {
+                textToCopy = generateHTML(currentMovieData, options);
+            }
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                
+                // Show success feedback
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                showError('Failed to copy to clipboard');
+                console.error(err);
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('outputContainer');
+            container.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Add event listeners for checkboxes to regenerate output
+        document.querySelectorAll('.checkbox-group input').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                if (currentMovieData) {
+                    generateOutput();
+                }
+            });
+        });
+
+        // Allow Enter key to search
+        document.getElementById('movieTitle').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchMovie();
+        });
+
+        document.getElementById('movieYear').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchMovie();
+        });
+    </script>
+</body>
+</html>
