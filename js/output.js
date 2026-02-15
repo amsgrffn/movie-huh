@@ -254,7 +254,7 @@ function generateMovieHTML(data, options) {
 
     // Year, Runtime, Genres as list
     if (options.includeYear || options.includeRuntime || options.includeGenres) {
-        html += '  <ul>\n';
+        html += '  <ul class="movie-details-info">\n';
         if (options.includeYear && data.Year) {
             html += `    <li><strong>Year:</strong> ${data.Year}</li>\n`;
         }
@@ -285,7 +285,7 @@ function generateMovieHTML(data, options) {
     // Ratings as list
     if (options.includeRatings) {
         html += '  <h3>Ratings</h3>\n';
-        html += '  <ul>\n';
+        html += '  <ul class="movie-details-ratings">\n';
         if (data.imdbRating && data.imdbRating !== 'N/A') {
             const imdbUrl = getIMDbURL(data.imdbID);
             html += `    <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
@@ -314,39 +314,40 @@ function generateMovieHTML(data, options) {
     }
 
     if (options.includeCast && data.Actors) {
-        html += '  <h3>Cast</h3>\n  <p>';
+        html += '  <h3>Cast</h3>\n';
+        html += '  <ul class="movie-details-cast">\n';
         const actors = data.Actors.split(', ');
-        const actorLinks = actors.map(actor => {
+        actors.forEach(actor => {
             let actorUrl = data.LetterboxdLinks?.cast?.[actor] || getLetterboxdActorLink(actor);
-            return `<a href="${actorUrl}" target="_blank">${actor}</a>`;
+            html += `    <li><a href="${actorUrl}" target="_blank">${actor}</a></li>\n`;
         });
-        html += actorLinks.join(', ');
-        html += '</p>\n';
+        html += '  </ul>\n';
     }
 
     if (options.includeCrew) {
-        html += '  <h3>Key Crew</h3>\n  <p>\n';
+        html += '  <h3>Key Crew</h3>\n';
+        html += '  <ul class="movie-details-crew">\n';
         if (data.Director && data.Director !== 'N/A') {
             const directorUrl = data.LetterboxdLinks?.crew?.[data.Director] || getLetterboxdDirectorLink(data.Director);
-            html += `    <strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a><br>\n`;
+            html += `    <li><strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a></li>\n`;
         }
         if (data.Writer && data.Writer !== 'N/A') {
             const writerUrl = data.LetterboxdLinks?.crew?.[data.Writer] || getTMDBSearchLink(data.Writer, 'person');
-            html += `    <strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a><br>\n`;
+            html += `    <li><strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a></li>\n`;
         }
         if (data.Cinematographer && data.Cinematographer !== 'N/A') {
             const cinematographerUrl = data.LetterboxdLinks?.crew?.[data.Cinematographer] || getTMDBSearchLink(data.Cinematographer, 'person');
-            html += `    <strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a><br>\n`;
+            html += `    <li><strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a></li>\n`;
         }
         if (data.Editor && data.Editor !== 'N/A') {
             const editorUrl = data.LetterboxdLinks?.crew?.[data.Editor] || getTMDBSearchLink(data.Editor, 'person');
-            html += `    <strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a><br>\n`;
+            html += `    <li><strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a></li>\n`;
         }
         if (data.Producer && data.Producer !== 'N/A') {
             const producerUrl = data.LetterboxdLinks?.crew?.[data.Producer] || getTMDBSearchLink(data.Producer, 'person');
-            html += `    <strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a>\n`;
+            html += `    <li><strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a></li>\n`;
         }
-        html += '  </p>\n';
+        html += '  </ul>\n';
     }
 
     html += '</div>';
