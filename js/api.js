@@ -149,10 +149,15 @@ async function fetchTMDBData(title, year) {
             }
         }
 
-        return { poster, crew, rating: tmdbRating };
+        // Extract top 6 cast members
+        const topCast = creditsData.cast
+            ? creditsData.cast.slice(0, 6).map(actor => actor.name).join(', ')
+            : null;
+
+        return { poster, crew, rating: tmdbRating, cast: topCast };
     } catch (error) {
         console.error('Error fetching TMDb data:', error);
-        return { poster: null, crew: {}, rating: null };
+        return { poster: null, crew: {}, rating: null, cast: null };
     }
 }
 
@@ -183,7 +188,7 @@ async function fetchMovieFromAPI(title, year, apiKey) {
                 Runtime: omdbData.Runtime,
                 Genre: omdbData.Genre,
                 Plot: omdbData.Plot,
-                Actors: omdbData.Actors,
+                Actors: tmdbData.cast || omdbData.Actors,
                 Director: omdbData.Director,
                 Writer: omdbData.Writer,
                 Producer: omdbData.Producer || "N/A",
@@ -255,7 +260,7 @@ async function fetchMovieFromTMDB(title, year) {
         const cinematographer = credits.crew.find(person => person.job === 'Director of Photography')?.name || 'N/A';
         const editor = credits.crew.find(person => person.job === 'Editor')?.name || 'N/A';
 
-        const topCast = credits.cast.slice(0, 5).map(actor => actor.name).join(', ');
+        const topCast = credits.cast.slice(0, 6).map(actor => actor.name).join(', ');
         const runtime = details.runtime ? `${details.runtime} min` : 'N/A';
         const genres = details.genres.map(g => g.name).join(', ');
         const imdbID = external.imdb_id || 'N/A';
@@ -329,7 +334,7 @@ async function fetchTVShowFromAPI(title, year) {
 
         // Extract crew info
         const creators = details.created_by?.map(c => c.name).join(', ') || 'N/A';
-        const topCast = credits.cast?.slice(0, 5).map(actor => actor.name).join(', ') || 'N/A';
+        const topCast = credits.cast?.slice(0, 6).map(actor => actor.name).join(', ') || 'N/A';
         const genres = details.genres?.map(g => g.name).join(', ') || 'N/A';
         const imdbID = external.imdb_id || 'N/A';
         const networks = details.networks?.map(n => n.name).join(', ') || 'N/A';
