@@ -1476,67 +1476,78 @@
 
             // Year, Runtime, Genres as list
             if (options.includeYear || options.includeRuntime || options.includeGenres) {
-                html += '  <ul>\n';
+                html += '  <section class="section-info">\n';
+                html += '    <h3>Film Specs</h3>\n';
+                html += '    <ul>\n';
                 if (options.includeYear && data.Year) {
-                    html += `    <li><strong>Year:</strong> ${data.Year}</li>\n`;
+                    html += `      <li><strong>Year:</strong> ${data.Year}</li>\n`;
                 }
                 if (options.includeRuntime && data.Runtime) {
-                    html += `    <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
+                    html += `      <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
                 }
                 if (options.includeGenres && data.Genre) {
                     const genres = data.Genre.split(', ');
                     const genreLinks = genres.map(genre => {
                         let genreUrl = getLetterboxdGenreLink(genre);
                         if (data.LetterboxdLinks?.genres) {
-                            const found = data.LetterboxdLinks.genres.find(g => 
+                            const found = data.LetterboxdLinks.genres.find(g =>
                                 g.name.toLowerCase() === genre.toLowerCase()
                             );
                             if (found) genreUrl = found.url;
                         }
                         return `<a href="${genreUrl}" target="_blank">${genre}</a>`;
                     });
-                    html += `    <li><strong>Genres:</strong> ${genreLinks.join(', ')}</li>\n`;
+                    html += `      <li><strong>Genres:</strong> ${genreLinks.join(', ')}</li>\n`;
                 }
-                html += '  </ul>\n';
+                html += '    </ul>\n';
+                html += '  </section>\n';
             }
 
             if (options.includeTagline && data.Tagline) {
-                html += `  <p class="tagline"><em>"${data.Tagline}"</em></p>\n`;
+                html += '  <section class="section-tagline">\n';
+                html += `    <p class="tagline"><em>"${data.Tagline}"</em></p>\n`;
+                html += '  </section>\n';
+            }
+
+            // Plot (before Ratings)
+            if (options.includePlot && data.Plot) {
+                html += '  <section class="section-plot">\n';
+                html += `    <h3>Plot Summary</h3>\n    <p>${data.Plot}</p>\n`;
+                html += '  </section>\n';
             }
 
             // Ratings as list
             if (options.includeRatings) {
-                html += '  <h3>Ratings</h3>\n';
-                html += '  <ul>\n';
+                html += '  <section class="section-ratings">\n';
+                html += '    <h3>Ratings</h3>\n';
+                html += '    <ul>\n';
                 if (data.imdbRating && data.imdbRating !== 'N/A') {
                     const imdbUrl = getIMDbURL(data.imdbID);
-                    html += `    <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
+                    html += `      <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
                 }
                 if (options.includeLetterboxd && data.LetterboxdRating && data.LetterboxdRating !== 'N/A') {
                     const letterboxdUrl = getLetterboxdURL(data.Title, data.Year);
-                    html += `    <li><strong>Letterboxd:</strong> <a href="${letterboxdUrl}" target="_blank">${data.LetterboxdRating}/5</a></li>\n`;
+                    html += `      <li><strong>Letterboxd:</strong> <a href="${letterboxdUrl}" target="_blank">${data.LetterboxdRating}/5</a></li>\n`;
                 }
                 if (data.Metascore && data.Metascore !== 'N/A') {
                     const metacriticUrl = getMetacriticURL(data.Title);
-                    html += `    <li><strong>Metacritic:</strong> <a href="${metacriticUrl}" target="_blank">${data.Metascore}/100</a></li>\n`;
+                    html += `      <li><strong>Metacritic:</strong> <a href="${metacriticUrl}" target="_blank">${data.Metascore}/100</a></li>\n`;
                 }
                 if (data.RottenTomatoes && data.RottenTomatoes !== 'N/A') {
                     const rtUrl = getRottenTomatoesURL(data.Title);
-                    html += `    <li><strong>Rotten Tomatoes:</strong> <a href="${rtUrl}" target="_blank">${data.RottenTomatoes}</a></li>\n`;
+                    html += `      <li><strong>Rotten Tomatoes:</strong> <a href="${rtUrl}" target="_blank">${data.RottenTomatoes}</a></li>\n`;
                 }
                 if (options.includeTMDb && data.TMDbRating && data.TMDbRating !== 'N/A') {
                     const tmdbUrl = getTMDbURL(data.Title, data.Year);
-                    html += `    <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
+                    html += `      <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
                 }
-                html += '  </ul>\n';
-            }
-
-            if (options.includePlot && data.Plot) {
-                html += `  <h3>Plot Summary</h3>\n  <p>${data.Plot}</p>\n`;
+                html += '    </ul>\n';
+                html += '  </section>\n';
             }
 
             if (options.includeCast && data.Actors) {
-                html += '  <h3>Cast</h3>\n  <p>';
+                html += '  <section class="section-cast">\n';
+                html += '    <h3>Cast</h3>\n    <p>';
                 const actors = data.Actors.split(', ');
                 const actorLinks = actors.map(actor => {
                     // Try to use scraped Letterboxd link first
@@ -1545,31 +1556,34 @@
                 });
                 html += actorLinks.join(', ');
                 html += '</p>\n';
+                html += '  </section>\n';
             }
 
             if (options.includeCrew) {
-                html += '  <h3>Key Crew</h3>\n  <p>\n';
+                html += '  <section class="section-crew">\n';
+                html += '    <h3>Key Crew</h3>\n    <p>\n';
                 if (data.Director) {
                     const directorUrl = data.LetterboxdLinks?.crew?.[data.Director] || getLetterboxdDirectorLink(data.Director);
-                    html += `    <strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a><br>\n`;
+                    html += `      <strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a><br>\n`;
                 }
                 if (data.Writer) {
                     const writerUrl = data.LetterboxdLinks?.crew?.[data.Writer] || getTMDBSearchLink(data.Writer, 'person');
-                    html += `    <strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a><br>\n`;
+                    html += `      <strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a><br>\n`;
                 }
                 if (data.Cinematographer && data.Cinematographer !== 'N/A') {
                     const cinematographerUrl = data.LetterboxdLinks?.crew?.[data.Cinematographer] || getTMDBSearchLink(data.Cinematographer, 'person');
-                    html += `    <strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a><br>\n`;
+                    html += `      <strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a><br>\n`;
                 }
                 if (data.Editor && data.Editor !== 'N/A') {
                     const editorUrl = data.LetterboxdLinks?.crew?.[data.Editor] || getTMDBSearchLink(data.Editor, 'person');
-                    html += `    <strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a><br>\n`;
+                    html += `      <strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a><br>\n`;
                 }
                 if (data.Producer && data.Producer !== 'N/A') {
                     const producerUrl = data.LetterboxdLinks?.crew?.[data.Producer] || getTMDBSearchLink(data.Producer, 'person');
-                    html += `    <strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a>\n`;
+                    html += `      <strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a>\n`;
                 }
-                html += '  </p>\n';
+                html += '    </p>\n';
+                html += '  </section>\n';
             }
 
             html += '</div>';

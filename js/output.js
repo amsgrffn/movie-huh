@@ -255,6 +255,7 @@ function generateMovieHTML(data, options) {
     // Year, Runtime, Genres as list
     if (options.includeYear || options.includeRuntime || options.includeGenres) {
         html += '  <section class="section-info">\n';
+        html += '    <h3>Film Specs</h3>\n';
         html += '    <ul class="movie-details-info">\n';
         if (options.includeYear && data.Year) {
             html += `      <li><strong>Year:</strong> ${data.Year}</li>\n`;
@@ -400,6 +401,7 @@ function generateTVHTML(data, options) {
     // Year, Runtime, Genres as list
     if (options.includeYear || options.includeRuntime || options.includeGenres) {
         html += '  <section class="section-info">\n';
+        html += '    <h3>Film Specs</h3>\n';
         html += '    <ul>\n';
         if (options.includeYear && data.Year) {
             html += `      <li><strong>Year:</strong> ${data.Year}</li>\n`;
@@ -559,6 +561,7 @@ function generateEpisodeHTML(data, options) {
 
     // Episode info
     html += '  <section class="section-info">\n';
+    html += '    <h3>Film Specs</h3>\n';
     html += '    <ul>\n';
     if (data.AirDate && data.AirDate !== 'N/A') {
         html += `      <li><strong>Air Date:</strong> ${data.AirDate}</li>\n`;
