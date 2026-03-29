@@ -254,12 +254,13 @@ function generateMovieHTML(data, options) {
 
     // Year, Runtime, Genres as list
     if (options.includeYear || options.includeRuntime || options.includeGenres) {
-        html += '  <ul class="movie-details-info">\n';
+        html += '  <section class="section-info">\n';
+        html += '    <ul class="movie-details-info">\n';
         if (options.includeYear && data.Year) {
-            html += `    <li><strong>Year:</strong> ${data.Year}</li>\n`;
+            html += `      <li><strong>Year:</strong> ${data.Year}</li>\n`;
         }
         if (options.includeRuntime && data.Runtime) {
-            html += `    <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
+            html += `      <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
         }
         if (options.includeGenres && data.Genre) {
             const genres = data.Genre.split(', ');
@@ -273,81 +274,93 @@ function generateMovieHTML(data, options) {
                 }
                 return `<a href="${genreUrl}" target="_blank">${genre}</a>`;
             });
-            html += `    <li><strong>Genres:</strong> ${genreLinks.join(', ')}</li>\n`;
+            html += `      <li><strong>Genres:</strong> ${genreLinks.join(', ')}</li>\n`;
         }
-        html += '  </ul>\n';
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeTagline && data.Tagline) {
-        html += `  <p class="tagline"><em>"${data.Tagline}"</em></p>\n`;
+        html += `  <section class="section-tagline">\n`;
+        html += `    <p class="tagline"><em>"${data.Tagline}"</em></p>\n`;
+        html += `  </section>\n`;
+    }
+
+    // Plot (before Ratings)
+    if (options.includePlot && data.Plot) {
+        html += '  <section class="section-plot">\n';
+        html += `    <h3>Plot Summary</h3>\n    <p>${data.Plot}</p>\n`;
+        html += '  </section>\n';
     }
 
     // Ratings as list
     if (options.includeRatings) {
-        html += '  <h3>Ratings</h3>\n';
-        html += '  <ul class="movie-details-ratings">\n';
+        html += '  <section class="section-ratings">\n';
+        html += '    <h3>Ratings</h3>\n';
+        html += '    <ul class="movie-details-ratings">\n';
         if (data.imdbRating && data.imdbRating !== 'N/A') {
             const imdbUrl = getIMDbURL(data.imdbID);
-            html += `    <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
+            html += `      <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
         }
         if (options.includeLetterboxd && data.LetterboxdRating && data.LetterboxdRating !== 'N/A') {
             const letterboxdUrl = getLetterboxdURL(data.Title, data.Year);
-            html += `    <li><strong>Letterboxd:</strong> <a href="${letterboxdUrl}" target="_blank">${data.LetterboxdRating}/5</a></li>\n`;
+            html += `      <li><strong>Letterboxd:</strong> <a href="${letterboxdUrl}" target="_blank">${data.LetterboxdRating}/5</a></li>\n`;
         }
         if (data.Metascore && data.Metascore !== 'N/A') {
             const metacriticUrl = getMetacriticURL(data.Title);
-            html += `    <li><strong>Metacritic:</strong> <a href="${metacriticUrl}" target="_blank">${data.Metascore}/100</a></li>\n`;
+            html += `      <li><strong>Metacritic:</strong> <a href="${metacriticUrl}" target="_blank">${data.Metascore}/100</a></li>\n`;
         }
         if (data.RottenTomatoes && data.RottenTomatoes !== 'N/A') {
             const rtUrl = getRottenTomatoesURL(data.Title);
-            html += `    <li><strong>Rotten Tomatoes:</strong> <a href="${rtUrl}" target="_blank">${data.RottenTomatoes}</a></li>\n`;
+            html += `      <li><strong>Rotten Tomatoes:</strong> <a href="${rtUrl}" target="_blank">${data.RottenTomatoes}</a></li>\n`;
         }
         if (options.includeTMDb && data.TMDbRating && data.TMDbRating !== 'N/A') {
             const tmdbUrl = getTMDbURL(data.Title, data.Year);
-            html += `    <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
+            html += `      <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
         }
-        html += '  </ul>\n';
-    }
-
-    if (options.includePlot && data.Plot) {
-        html += `  <h3>Plot Summary</h3>\n  <p>${data.Plot}</p>\n`;
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeCast && data.Actors) {
-        html += '  <h3>Cast</h3>\n';
-        html += '  <ul class="movie-details-cast">\n';
+        html += '  <section class="section-cast">\n';
+        html += '    <h3>Cast</h3>\n';
+        html += '    <ul class="movie-details-cast">\n';
         const actors = data.Actors.split(', ');
         actors.forEach(actor => {
             let actorUrl = data.LetterboxdLinks?.cast?.[actor] || getLetterboxdActorLink(actor);
-            html += `    <li><a href="${actorUrl}" target="_blank">${actor}</a></li>\n`;
+            html += `      <li><a href="${actorUrl}" target="_blank">${actor}</a></li>\n`;
         });
-        html += '  </ul>\n';
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeCrew) {
-        html += '  <h3>Key Crew</h3>\n';
-        html += '  <ul class="movie-details-crew">\n';
+        html += '  <section class="section-crew">\n';
+        html += '    <h3>Key Crew</h3>\n';
+        html += '    <ul class="movie-details-crew">\n';
         if (data.Director && data.Director !== 'N/A') {
             const directorUrl = data.LetterboxdLinks?.crew?.[data.Director] || getLetterboxdDirectorLink(data.Director);
-            html += `    <li><strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a></li>\n`;
+            html += `      <li><strong>Director:</strong> <a href="${directorUrl}" target="_blank">${data.Director}</a></li>\n`;
         }
         if (data.Writer && data.Writer !== 'N/A') {
             const writerUrl = data.LetterboxdLinks?.crew?.[data.Writer] || getTMDBSearchLink(data.Writer, 'person');
-            html += `    <li><strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a></li>\n`;
+            html += `      <li><strong>Writer:</strong> <a href="${writerUrl}" target="_blank">${data.Writer}</a></li>\n`;
         }
         if (data.Cinematographer && data.Cinematographer !== 'N/A') {
             const cinematographerUrl = data.LetterboxdLinks?.crew?.[data.Cinematographer] || getTMDBSearchLink(data.Cinematographer, 'person');
-            html += `    <li><strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a></li>\n`;
+            html += `      <li><strong>Cinematographer:</strong> <a href="${cinematographerUrl}" target="_blank">${data.Cinematographer}</a></li>\n`;
         }
         if (data.Editor && data.Editor !== 'N/A') {
             const editorUrl = data.LetterboxdLinks?.crew?.[data.Editor] || getTMDBSearchLink(data.Editor, 'person');
-            html += `    <li><strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a></li>\n`;
+            html += `      <li><strong>Editor:</strong> <a href="${editorUrl}" target="_blank">${data.Editor}</a></li>\n`;
         }
         if (data.Producer && data.Producer !== 'N/A') {
             const producerUrl = data.LetterboxdLinks?.crew?.[data.Producer] || getTMDBSearchLink(data.Producer, 'person');
-            html += `    <li><strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a></li>\n`;
+            html += `      <li><strong>Producer:</strong> <a href="${producerUrl}" target="_blank">${data.Producer}</a></li>\n`;
         }
-        html += '  </ul>\n';
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     html += '</div>';
@@ -366,78 +379,93 @@ function generateTVHTML(data, options) {
 
     // TV Show specific info
     if (options.includeTVInfo) {
-        html += '  <div class="tv-info">\n';
+        html += '  <section class="section-tv-info">\n';
+        html += '    <div class="tv-info">\n';
         if (data.Seasons && data.Seasons !== 'N/A') {
-            html += `    <span class="tv-info-item"><strong>Seasons:</strong> ${data.Seasons}</span>\n`;
+            html += `      <span class="tv-info-item"><strong>Seasons:</strong> ${data.Seasons}</span>\n`;
         }
         if (data.Episodes && data.Episodes !== 'N/A') {
-            html += `    <span class="tv-info-item"><strong>Episodes:</strong> ${data.Episodes}</span>\n`;
+            html += `      <span class="tv-info-item"><strong>Episodes:</strong> ${data.Episodes}</span>\n`;
         }
         if (data.Status && data.Status !== 'N/A') {
-            html += `    <span class="tv-info-item"><strong>Status:</strong> ${data.Status}</span>\n`;
+            html += `      <span class="tv-info-item"><strong>Status:</strong> ${data.Status}</span>\n`;
         }
         if (data.Network && data.Network !== 'N/A') {
-            html += `    <span class="tv-info-item"><strong>Network:</strong> ${data.Network}</span>\n`;
+            html += `      <span class="tv-info-item"><strong>Network:</strong> ${data.Network}</span>\n`;
         }
-        html += '  </div>\n';
+        html += '    </div>\n';
+        html += '  </section>\n';
     }
 
     // Year, Runtime, Genres as list
     if (options.includeYear || options.includeRuntime || options.includeGenres) {
-        html += '  <ul>\n';
+        html += '  <section class="section-info">\n';
+        html += '    <ul>\n';
         if (options.includeYear && data.Year) {
-            html += `    <li><strong>Year:</strong> ${data.Year}</li>\n`;
+            html += `      <li><strong>Year:</strong> ${data.Year}</li>\n`;
         }
         if (options.includeRuntime && data.Runtime) {
-            html += `    <li><strong>Episode Runtime:</strong> ${data.Runtime}</li>\n`;
+            html += `      <li><strong>Episode Runtime:</strong> ${data.Runtime}</li>\n`;
         }
         if (options.includeGenres && data.Genre) {
-            html += `    <li><strong>Genres:</strong> ${data.Genre}</li>\n`;
+            html += `      <li><strong>Genres:</strong> ${data.Genre}</li>\n`;
         }
-        html += '  </ul>\n';
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeTagline && data.Tagline) {
-        html += `  <p class="tagline"><em>"${escapeHtml(data.Tagline)}"</em></p>\n`;
+        html += '  <section class="section-tagline">\n';
+        html += `    <p class="tagline"><em>"${escapeHtml(data.Tagline)}"</em></p>\n`;
+        html += '  </section>\n';
+    }
+
+    // Synopsis (before Ratings)
+    if (options.includePlot && data.Plot) {
+        html += '  <section class="section-plot">\n';
+        html += `    <h3>Synopsis</h3>\n    <p>${escapeHtml(data.Plot)}</p>\n`;
+        html += '  </section>\n';
     }
 
     // Ratings
     if (options.includeRatings) {
-        html += '  <h3>Ratings</h3>\n';
-        html += '  <ul>\n';
+        html += '  <section class="section-ratings">\n';
+        html += '    <h3>Ratings</h3>\n';
+        html += '    <ul>\n';
         if (data.imdbRating && data.imdbRating !== 'N/A') {
             const imdbUrl = getIMDbURL(data.imdbID);
-            html += `    <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
+            html += `      <li><strong>IMDb:</strong> <a href="${imdbUrl}" target="_blank">${data.imdbRating}/10</a></li>\n`;
         }
         if (options.includeTMDb && data.TMDbRating && data.TMDbRating !== 'N/A') {
             const tmdbUrl = getTMDbURL(data.Title, data.Year, 'tv');
-            html += `    <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
+            html += `      <li><strong>TMDb:</strong> <a href="${tmdbUrl}" target="_blank">${data.TMDbRating}/10</a></li>\n`;
         }
-        html += '  </ul>\n';
-    }
-
-    if (options.includePlot && data.Plot) {
-        html += `  <h3>Synopsis</h3>\n  <p>${escapeHtml(data.Plot)}</p>\n`;
+        html += '    </ul>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeCast && data.Actors) {
-        html += '  <h3>Cast</h3>\n  <p>';
+        html += '  <section class="section-cast">\n';
+        html += '    <h3>Cast</h3>\n    <p>';
         const actors = data.Actors.split(', ');
         const actorLinks = actors.map(actor => {
             return `<a href="${getTMDBSearchLink(actor, 'person')}" target="_blank">${escapeHtml(actor)}</a>`;
         });
         html += actorLinks.join(', ');
         html += '</p>\n';
+        html += '  </section>\n';
     }
 
     if (options.includeCrew && data.Creator && data.Creator !== 'N/A') {
-        html += '  <h3>Created By</h3>\n  <p>';
+        html += '  <section class="section-crew">\n';
+        html += '    <h3>Created By</h3>\n    <p>';
         const creators = data.Creator.split(', ');
         const creatorLinks = creators.map(creator => {
             return `<a href="${getTMDBSearchLink(creator, 'person')}" target="_blank">${escapeHtml(creator)}</a>`;
         });
         html += creatorLinks.join(', ');
         html += '</p>\n';
+        html += '  </section>\n';
     }
 
     html += '</div>';
@@ -530,42 +558,50 @@ function generateEpisodeHTML(data, options) {
     }
 
     // Episode info
-    html += '  <ul>\n';
+    html += '  <section class="section-info">\n';
+    html += '    <ul>\n';
     if (data.AirDate && data.AirDate !== 'N/A') {
-        html += `    <li><strong>Air Date:</strong> ${data.AirDate}</li>\n`;
+        html += `      <li><strong>Air Date:</strong> ${data.AirDate}</li>\n`;
     }
     if (options.includeRuntime && data.Runtime) {
-        html += `    <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
+        html += `      <li><strong>Runtime:</strong> ${data.Runtime}</li>\n`;
     }
     if (data.TMDbRating && data.TMDbRating !== 'N/A') {
-        html += `    <li><strong>TMDb Rating:</strong> ${data.TMDbRating}/10</li>\n`;
+        html += `      <li><strong>TMDb Rating:</strong> ${data.TMDbRating}/10</li>\n`;
     }
-    html += '  </ul>\n';
+    html += '    </ul>\n';
+    html += '  </section>\n';
 
     // Plot
     if (options.includePlot && data.Plot) {
-        html += `  <h4>Synopsis</h4>\n  <p>${escapeHtml(data.Plot)}</p>\n`;
+        html += '  <section class="section-plot">\n';
+        html += `    <h4>Synopsis</h4>\n    <p>${escapeHtml(data.Plot)}</p>\n`;
+        html += '  </section>\n';
     }
 
     // Crew
     if (options.includeCrew) {
         const hasCrew = (data.Director && data.Director !== 'N/A') || (data.Writer && data.Writer !== 'N/A');
         if (hasCrew) {
-            html += '  <h4>Crew</h4>\n  <ul>\n';
+            html += '  <section class="section-crew">\n';
+            html += '    <h4>Crew</h4>\n    <ul>\n';
             if (data.Director && data.Director !== 'N/A') {
-                html += `    <li><strong>Directed by:</strong> ${escapeHtml(data.Director)}</li>\n`;
+                html += `      <li><strong>Directed by:</strong> ${escapeHtml(data.Director)}</li>\n`;
             }
             if (data.Writer && data.Writer !== 'N/A') {
-                html += `    <li><strong>Written by:</strong> ${escapeHtml(data.Writer)}</li>\n`;
+                html += `      <li><strong>Written by:</strong> ${escapeHtml(data.Writer)}</li>\n`;
             }
-            html += '  </ul>\n';
+            html += '    </ul>\n';
+            html += '  </section>\n';
         }
     }
 
     // Guest Stars
     if (options.includeCast && data.GuestStars && data.GuestStars.length > 0) {
-        html += '  <h4>Guest Stars</h4>\n';
-        html += `  <p>${data.GuestStars.map(g => escapeHtml(g)).join(', ')}</p>\n`;
+        html += '  <section class="section-cast">\n';
+        html += '    <h4>Guest Stars</h4>\n';
+        html += `    <p>${data.GuestStars.map(g => escapeHtml(g)).join(', ')}</p>\n`;
+        html += '  </section>\n';
     }
 
     html += '</div>';
